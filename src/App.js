@@ -1,23 +1,45 @@
-import logo from './logo.svg';
+import React, {useState,useEffect} from 'react'
+import axios from 'axios';
+import { Route, Switch } from "react-router-dom";
+
 import './App.css';
+import UserList from'./components/UserList';
+import UserDetails from './components/UserDetails';
 
 function App() {
-  return (
+  const [users,setUsers]=useState([]);
+  const [loading,setLoading]=useState(true);
+
+
+  useEffect(()=>{
+const getUsers = async()=> {
+  try {
+    const res = await axios.get('https://jsonplaceholder.typicode.com/users');
+      // handle success
+      setUsers(res.data);
+      setLoading(false)
+      console.log(res);
+      console.log(res.data[0].address)
+    }
+    catch( error) {
+      // handle error
+      console.log(error);
+    }
+};   getUsers()
+  },[])
+  return ( loading ?<h1>loading</h1>:
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Switch>
+        <Route exact path='/'>
+        <nav className="nav">
+        <h1> List Of Users </h1>
+      </nav>
+     <UserList users={users} />
+        </Route>
+         <Route path="/:name"
+          render={(props) => <UserDetails data={users} loading={loading} {...props} />}
+        /> 
+      </Switch>
     </div>
   );
 }
